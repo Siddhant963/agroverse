@@ -1,4 +1,4 @@
-# Agroverse Vehicle Booking System
+# Agroverse farming Vehicle Booking System
 
 Agroverse is a vehicle rental management system designed for managing bookings, vehicle details, and user accounts. The platform allows users (bookers) to view available vehicles based on type, book a vehicle for a specific duration, and make payments. The owners can manage their vehicle listings and approve or reject booking requests.
 
@@ -22,7 +22,7 @@ Agroverse is a vehicle rental management system designed for managing bookings, 
 Clone the repository to your local machine or server:
 
 ```bash
-git clone 
+git clone https://github.com/Siddhant963/agroverse.git
 
 
 use following cmd to setup db
