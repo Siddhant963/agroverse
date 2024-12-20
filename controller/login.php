@@ -24,7 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
              } elseif ($user['UserType'] == 'Booker') {
                  header("Location:../views/Booker/booker_dashboard.php");
               
-             }
+             }elseif ($user['UserType'] == 'Admin') {
+                header("Location:../views/Admin/Admin_dashbord.php");
+             
+            }
              exit();
          } else {
              echo "Invalid password.";

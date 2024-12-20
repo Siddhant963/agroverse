@@ -255,29 +255,35 @@
 
     // Function to update the booking status
     function updateStatus(bookingID, status) {
-        // Send the updated status to the server
-        fetch('../../controller/update_booking_status.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ bookingID: bookingID, status: status })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update the status on the page
-                document.getElementById(`status-${bookingID}`).innerText = status;
+    // Send the updated status to the server
+    fetch('../../controller/update_booking_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookingID: bookingID, status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the status on the page
+            document.getElementById(`status-${bookingID}`).innerText = status;
 
-                // Hide both Accept and Cancel buttons after a selection
-                document.getElementById(`accept-btn-${bookingID}`).classList.add('hidden');
-                document.getElementById(`cancel-btn-${bookingID}`).classList.add('hidden');
-            } else {
-                alert('Error updating status');
+            // Redirect to billing section if status is confirmed
+            if (status === 'Confirmed') {
+                window.location.href = `./billing_section.php?bookingID=${bookingID}`;
             }
-        })
-        .catch(err => console.error('Error updating status:', err));
-    }
+
+            // Hide both Accept and Cancel buttons after a selection
+            document.getElementById(`accept-btn-${bookingID}`).classList.add('hidden');
+            document.getElementById(`cancel-btn-${bookingID}`).classList.add('hidden');
+        } else {
+            alert('Error updating status');
+        }
+    })
+    .catch(err => console.error('Error updating status:', err));
+}
+
 </script>
 <script>
         function toggleDropdown() {

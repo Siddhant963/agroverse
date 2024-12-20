@@ -114,6 +114,7 @@
                 <select id="userType" name="userType" required>
                     <option value="Owner">Owner</option>
                     <option value="Booker">Booker</option>
+                    <option value="Admin">Admin</option>
                 </select>
             </div>
             <button type="submit" class="signup-button">Sign Up</button>

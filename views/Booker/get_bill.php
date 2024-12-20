@@ -1,9 +1,30 @@
+<?php
+// Sample connection and query logic (update with your DB credentials)
+include('../../model/db.php'); // Adjust this path
+
+if (isset($_GET['bookingId'])) {
+    $bookingId = intval($_GET['bookingId']);
+
+    $query = "SELECT * FROM Bookings b
+JOIN Vehicles v ON b.VehicleID = v.VehicleID WHERE BookingID = $bookingId";
+    $result = mysqli_query($conn, $query);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $booking = mysqli_fetch_assoc($result);
+    } else {
+        die("Booking not found.");
+    }
+} else {
+    die("Invalid request.");
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agroverse</title>
+    <title>Get Bill</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +32,46 @@
             margin: 0;
             padding: 0;
         }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .bill-details {
+            margin-bottom: 20px;
+        }
+
+        .bill-details h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .bill-details p {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .pay-now {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .pay-now:hover {
+            background-color: #0056b3;
+        }
+
+        
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -51,42 +112,7 @@
         .navbar .nav-links a:hover {
             color: #d1eaff;
         }
-        .container {
-            width: 80%;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        .booking-card {
-            background: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: background-color 0.3s;
-        }
-        .booking-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        .booking-card p {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        .booking-card .status {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .booking-card.confirmed {
-            background-color: #28a745; /* Green for Confirmed */
-            color: white;
-        }
-        .booking-card.cancelled {
-            background-color: #dc3545; /* Red for Cancelled */
-            color: white;
-        }
+
         @media (max-width: 768px) {
             .navbar .nav-links {
                 flex-direction: column;
@@ -174,17 +200,6 @@
         .footer a:hover {
             text-decoration: underline;
         }
-        .btnbill{ 
-            background-color:rgb(71, 0, 237);
-            color: white;
-            padding: 10px 20px;
-            margin: 8px 0;
-            border: none;
-            cursor: pointer;
-            width: 10%;
-            opacity: 0.9;
-            border-radius: 10px;
-        }
     </style>
 </head>
 <body>
@@ -204,54 +219,28 @@
                     <div class="dropdown-item"><strong>Email:</strong> <span id="userEmail"></span></div>
                     <div class="dropdown-item"><strong>Role:</strong> <span id="userRole"></span></div>
                     <a href="../../controller/logout.php"><div class="dropdown-item"><strong>Logout</strong></div></a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-<div class="container" id="bookingListContainer">
-    <!-- Booking details will be displayed here -->
-</div>
-<div class="footer">
+    <div class="container">
+        <div class="bill-details">
+            <h2>Bill Details</h2>
+            <p><strong>Booking ID:</strong> <?php echo $booking['BookingID']; ?></p>
+            <p><strong>Vehicle:</strong> <?php echo $booking['Brand'] . ' ' . $booking['Model']; ?></p>
+            <p><strong>Hours:</strong> <?php echo $booking['Hours']; ?></p>
+            <p><strong>Total Payment:</strong> <?php echo $booking['TotalPayment']; ?></p>
+        </div>
+        <a href="pay_bill.php?bookingId=<?php echo $booking['BookingID']; ?>" class="pay-now">Pay Now</a>
+    </div>
+
+    <div class="footer">
         <p>&copy; 2024 Agroverse. All rights reserved.</p>
         <p>Need help? Contact us at <a href="mailto:help@brandname.com">help@brandname.com</a></p>
     </div>
-
-<script>
-     // Fetch booking details from the server for the booker side
-     fetch('../../controller/Booker_booking.php')
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('bookingListContainer');
-            
-            if (data.length === 0) {
-                container.innerHTML = '<p>No bookings found.</p>';
-            } else {
-                data.forEach(booking => {
-                    // Create booking card HTML with color-coded background based on booking status
-                    const isAccepted = booking.Status.toLowerCase() === 'confirmed';
-                    const bookingCard = `
-                        <div class="booking-card ${booking.Status.toLowerCase()}" id="booking-${booking.BookingID}">
-                            <h3>${booking.Brand} ${booking.Model} (${booking.VehicleType})</h3>
-                            <p><strong>Booking Date:</strong> ${booking.BookingDate}</p>
-                            <p><strong>Hours:</strong> ${booking.Hours}</p>
-                            <p><strong>Total Payment:</strong> ${booking.TotalPayment}</p>
-                            <p class="status"><strong>Status:</strong> ${booking.Status}</p>
-                            ${isAccepted ? `<button class ="btnbill" onclick="getBill(${booking.BookingID})">Get Bill</button>` : ''}
-                        </div>
-                    `;
-                    container.innerHTML += bookingCard;
-                });
-            }
-        })
-        .catch(err => console.error('Error fetching bookings:', err));
-
-    // Redirect to the "Get Bill" page
-    function getBill(bookingId) {
-        window.location.href = `./get_bill.php?bookingId=${bookingId}`;
-    }
-</script>
-<script>
+    <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('active');
@@ -281,7 +270,5 @@
             }
         });
     </script>
-
 </body>
 </html>
-

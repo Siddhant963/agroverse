@@ -7,16 +7,17 @@ if (isset($_POST['registerVehicle'])) {
      $brand = $_POST['brand'];
      $model = $_POST['model'];
      $hourlyRate = $_POST['hourlyRate'];
+     $location = $_POST['location'];
      $ownerID =  $_SESSION['user_id']; // Assuming the owner is logged in with a session, set the owner ID here (replace with dynamic session value if necessary)
  
      // Prepare SQL statement to insert vehicle data
-     $sql = "INSERT INTO Vehicles (OwnerID, VehicleType, Brand, Model, HourlyRate, Status) 
-             VALUES (?, ?, ?, ?, ?, 'Available')";
+     $sql = "INSERT INTO Vehicles (OwnerID, VehicleType, Brand, Model, HourlyRate, Status , location) 
+             VALUES (?, ?, ?, ?, ?, 'Available' ,?)";
  
      // Prepare statement
      if ($stmt = $conn->prepare($sql)) {
          // Bind parameters
-         $stmt->bind_param("isssd", $ownerID, $vehicleType, $brand, $model, $hourlyRate);
+         $stmt->bind_param("isssds", $ownerID, $vehicleType, $brand, $model, $hourlyRate,$location);
  
          // Execute the statement
          if ($stmt->execute()) {

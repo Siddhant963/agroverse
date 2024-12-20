@@ -237,12 +237,21 @@
 
 <div class="container">
     <!-- Links for Vehicle Types -->
-    <div class="vehicle-type-links">
-        <a href="?vehicleType=Tractor-Trolley">Tractor Trolley</a>
-        <a href="?vehicleType=Tractor Rotary">Tractor Rotary</a>
-        <a href="?vehicleType=Tractor Cultivator">Tractor Cultivator</a>
-        <a href="?vehicleType=Harvester">Harvester</a>
-    </div>
+    <form id="vehicleForm">
+    <label for="vehicleType">Type of Vehicle:</label>
+    <select id="vehicleType" required>
+      <option value="">Select a vehicle type</option>
+      <option value="Tractor-Trolley">Tractor-Trolley</option>
+      <option value="Tractor-Rotary">Tractor Rotary</option>
+      <option value="Tractor-Cultivator">Tractor-Cultivator</option>
+      <option value="Harvester">Harvester</option>
+    </select>
+
+    <label for="location">Location:</label>
+    <input type="text" id="location" placeholder="Enter location" required>
+
+    <button type="button" onclick="searchVehicles()">Search</button>
+  </form>
 
     <!-- Vehicle List will be populated here -->
     <div class="vehicle-list" id="vehicleList"></div>
@@ -253,44 +262,70 @@
     </div>
 
 <script>
-    // Fetch the vehicle data based on the selected vehicle type from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const vehicleType = urlParams.get('vehicleType');
+    function searchVehicles() {
+    // Get the selected vehicle type and location from the form
+    const vehicleType = document.getElementById("vehicleType").value.trim();
+    const location = document.getElementById("location").value.trim();
 
-    if (vehicleType) {
-        // Send a request to the server to fetch the vehicle data based on the selected type
-        fetch(`../../controller/get_vehicles.php?vehicleType=${vehicleType}`)
-            .then(response => response.json())
-            .then(data => {
-                const vehicleList = document.getElementById('vehicleList');
-                if (data.length === 0) {
-                    vehicleList.innerHTML = '<p>No vehicles found for this type.</p>';
-                } else {
-                    vehicleList.innerHTML = data.map(vehicle => {
-                        return `
-                            <div class="vehicle-card" id="vehicle-${vehicle.VehicleID}">
-                                <h3>${vehicle.Brand} ${vehicle.Model}</h3>
-                                <p>Hourly Rate: $${vehicle.HourlyRate}</p>
-                                <p>Status: ${vehicle.Status}</p>
-                                <div class="booking-details">
-                                    <label for="date-${vehicle.VehicleID}">Select Date:</label>
-                                    <input type="date" id="date-${vehicle.VehicleID}" required />
-                                    <label for="hours-${vehicle.VehicleID}">Select Hours:</label>
-                                    <input type="number" id="hours-${vehicle.VehicleID}" min="1" required onchange="calculateTotal(${vehicle.VehicleID}, ${vehicle.HourlyRate})" />
-                                    <div class="total-payment" id="total-payment-${vehicle.VehicleID}">
-                                        Total Payment: $0
-                                    </div>
-                                    <button class="book-now-btn" onclick="bookNow(${vehicle.VehicleID})">Book Now</button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-            })
-            .catch(err => {
-                console.error('Error fetching vehicles:', err);
-            });
+    // Validate input
+    if (!vehicleType || !location) {
+        alert("Please select a vehicle type and provide a location.");
+        return;
     }
+
+    console.log("Vehicle Type:", vehicleType);
+    console.log("Location:", location);
+
+    // Send a request to the server to fetch the vehicle data
+    fetch(`../../controller/get_vehicles.php?vehicleType=${vehicleType}&location=${location}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const vehicleList = document.getElementById('vehicleList');
+
+            // Handle empty data response
+            if (data.length === 0) {
+                vehicleList.innerHTML = '<p>No vehicles found for the selected type and location.</p>';
+                return;
+            }
+
+            // Render vehicle cards dynamically
+            vehicleList.innerHTML = data.map(vehicle => {
+                const vehicleId = vehicle.VehicleID || "Unknown";
+                const brand = vehicle.Brand || "Unknown Brand";
+                const model = vehicle.Model || "Unknown Model";
+                const hourlyRate = vehicle.HourlyRate || 0;
+                const status = vehicle.Status || "Unavailable";
+
+                return `
+                    <div class="vehicle-card" id="vehicle-${vehicleId}">
+                        <h3>${brand} ${model}</h3>
+                        <p>Hourly Rate: $${hourlyRate}</p>
+                        <p>Status: ${status}</p>
+                        <div class="booking-details">
+                            <label for="date-${vehicleId}">Select Date:</label>
+                            <input type="date" id="date-${vehicleId}" required />
+                            <label for="hours-${vehicleId}">Select Hours:</label>
+                            <input type="number" id="hours-${vehicleId}" min="1" required onchange="calculateTotal(${vehicleId}, ${hourlyRate})" />
+                            <div class="total-payment" id="total-payment-${vehicleId}">
+                                Total Payment: 0
+                            </div>
+                            <button class="book-now-btn" onclick="bookNow(${vehicleId})">Book Now</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        })
+        .catch(err => {
+            console.error('Error fetching vehicles:', err);
+            alert("An error occurred while fetching vehicle data. Please try again.");
+        });
+}
+
 
     // Function to calculate total payment dynamically
     function calculateTotal(vehicleID, hourlyRate) {

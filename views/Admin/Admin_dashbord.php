@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agroverse</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f7fa;
-            margin: 0;
-            padding: 0;
-        }
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+     <style>
+          
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -50,43 +45,7 @@
 
         .navbar .nav-links a:hover {
             color: #d1eaff;
-        }
-        .container {
-            width: 80%;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        .booking-card {
-            background: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: background-color 0.3s;
-        }
-        .booking-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        .booking-card p {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        .booking-card .status {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .booking-card.confirmed {
-            background-color: #28a745; /* Green for Confirmed */
-            color: white;
-        }
-        .booking-card.cancelled {
-            background-color: #dc3545; /* Red for Cancelled */
-            color: white;
-        }
+        } 
         @media (max-width: 768px) {
             .navbar .nav-links {
                 flex-direction: column;
@@ -174,18 +133,25 @@
         .footer a:hover {
             text-decoration: underline;
         }
-        .btnbill{ 
-            background-color:rgb(71, 0, 237);
-            color: white;
-            padding: 10px 20px;
-            margin: 8px 0;
-            border: none;
-            cursor: pointer;
-            width: 10%;
-            opacity: 0.9;
-            border-radius: 10px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-    </style>
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .error {
+            color: red;
+        }
+     </style>
 </head>
 <body>
 <div class="navbar">
@@ -196,7 +162,7 @@
         <div class="nav-links">
             <a href="./booker_dashboard.php">Home</a>
             <a href="./vehicles.php">Vehicles</a>
-            <a href="./Booking.php">Bookings</a>
+            <a href="./all_bookings.php">All Bookings</a>
             <div class="profile" onclick="toggleDropdown()">
                 <div class="profile-icon">B</div>
                 <div class="profile-dropdown" id="profileDropdown">
@@ -204,54 +170,17 @@
                     <div class="dropdown-item"><strong>Email:</strong> <span id="userEmail"></span></div>
                     <div class="dropdown-item"><strong>Role:</strong> <span id="userRole"></span></div>
                     <a href="../../controller/logout.php"><div class="dropdown-item"><strong>Logout</strong></div></a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-<div class="container" id="bookingListContainer">
-    <!-- Booking details will be displayed here -->
-</div>
-<div class="footer">
+    <div class="footer">
         <p>&copy; 2024 Agroverse. All rights reserved.</p>
         <p>Need help? Contact us at <a href="mailto:help@brandname.com">help@brandname.com</a></p>
     </div>
-
-<script>
-     // Fetch booking details from the server for the booker side
-     fetch('../../controller/Booker_booking.php')
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('bookingListContainer');
-            
-            if (data.length === 0) {
-                container.innerHTML = '<p>No bookings found.</p>';
-            } else {
-                data.forEach(booking => {
-                    // Create booking card HTML with color-coded background based on booking status
-                    const isAccepted = booking.Status.toLowerCase() === 'confirmed';
-                    const bookingCard = `
-                        <div class="booking-card ${booking.Status.toLowerCase()}" id="booking-${booking.BookingID}">
-                            <h3>${booking.Brand} ${booking.Model} (${booking.VehicleType})</h3>
-                            <p><strong>Booking Date:</strong> ${booking.BookingDate}</p>
-                            <p><strong>Hours:</strong> ${booking.Hours}</p>
-                            <p><strong>Total Payment:</strong> ${booking.TotalPayment}</p>
-                            <p class="status"><strong>Status:</strong> ${booking.Status}</p>
-                            ${isAccepted ? `<button class ="btnbill" onclick="getBill(${booking.BookingID})">Get Bill</button>` : ''}
-                        </div>
-                    `;
-                    container.innerHTML += bookingCard;
-                });
-            }
-        })
-        .catch(err => console.error('Error fetching bookings:', err));
-
-    // Redirect to the "Get Bill" page
-    function getBill(bookingId) {
-        window.location.href = `./get_bill.php?bookingId=${bookingId}`;
-    }
-</script>
-<script>
+    <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('active');
@@ -280,8 +209,47 @@
                 alert('Please fill in all required fields.');
             }
         });
-    </script>
 
+    </script>
+     <script>
+        function fetchBookingData() {
+            // API endpoint for fetching booking data
+            const apiUrl = '../../controller/get_bookings.php';
+
+            // Fetch booking data
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('bookingTable').querySelector('tbody');
+                    const errorElement = document.getElementById('error');
+                    errorElement.textContent = ''; // Clear previous errors
+
+                    if (data.length === 0) {
+                        errorElement.textContent = 'No bookings found.';
+                        tableBody.innerHTML = '';
+                    } else {
+                        // Populate table rows
+                        tableBody.innerHTML = data.map(booking => `
+                            <tr>
+                                <td>${booking.BookingID}</td>
+                                <td>${booking.CustomerName}</td>
+                                <td>${booking.VehicleType}</td>
+                                <td>${booking.Location}</td>
+                                <td>${booking.Date}</td>
+                                <td>${booking.Hours}</td>
+                                <td>$${booking.TotalPayment}</td>
+                            </tr>
+                        `).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching booking data:', error);
+                    document.getElementById('error').textContent = 'An error occurred while fetching booking data. Please try again.';
+                });
+        }
+
+        // Call the function to fetch and display booking data
+        fetchBookingData();
+    </script>
 </body>
 </html>
-
