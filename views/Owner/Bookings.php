@@ -199,6 +199,7 @@
         </div>
         <div class="nav-links">
             <a href="./owner_dashboard.php">Home</a>
+            <a href="./vehicle_view.php">see your Vehicles</a>
             <a href="./Bookings.php">Bookings</a>
             <div class="profile" onclick="toggleDropdown()">
                 <div class="profile-icon">A</div>

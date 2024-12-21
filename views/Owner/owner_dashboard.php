@@ -223,6 +223,7 @@
         <div class="nav-links">
             <a href="./owner_dashboard.php">Home</a>
             <a href="./Bookings.php">Bookings</a>
+            <a href="./vehicle_view.php">See your vehicle </a>
             <div class="profile" onclick="toggleDropdown()">
                 <div class="profile-icon">A</div>
                 <div class="profile-dropdown" id="profileDropdown">
